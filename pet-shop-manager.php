@@ -3,8 +3,8 @@
  * Plugin Name: Pet Shop Manager
  * Description: A plugin to manage pet shop operations including product management, sales tracking, and expense tracking.
  * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://yourwebsite.com
+ * Author: Md Ashfakul Karim
+ * Author URI: https://ashfakulkarim.xyz/
  * License: GPL2
  */
 
