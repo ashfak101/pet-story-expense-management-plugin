@@ -107,6 +107,10 @@ class Pet_Shop_Manager {
             case 'get_products':
                 $this->ajax_get_products();
                 break;
+            case 'get_product':
+                // Not implemented in this example
+                $this->ajax_get_product();
+                break;
             case 'add_sale':
                 $this->ajax_add_sale();
                 break;
@@ -155,7 +159,11 @@ class Pet_Shop_Manager {
         $products = $this->database->get_products();
         wp_send_json_success( $products );
     }
-
+    private function ajax_get_product() {
+        $id = intval( $_POST['id'] );
+        $product = $this->database->get_product( $id );
+        wp_send_json_success( $product );
+    }
     private function ajax_delete_product() {
         $id = intval( $_POST['id'] );
         $this->database->delete_product( $id );

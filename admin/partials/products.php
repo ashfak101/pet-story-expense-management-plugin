@@ -38,14 +38,44 @@
 
 <script>
 jQuery(document).ready(function ($) {
-    // Ensure only one event handler is attached
+    // Add Product Modal
     $('#add-product').off('click').on('click', function () {
-        $('#product-modal').stop(true, true).hide();
         $('#product-form')[0].reset();
         $('#product-id').val('');
-        $('#product-modal').fadeIn();
+        $('#product-modal').stop(true, true).hide().fadeIn();
+        $('#product-form').data('mode', 'add');
     });
 
+    // Edit Product Modal
+    $(document).off('click.editProduct').on('click.editProduct', '.edit-product', function() {
+        const productId = $(this).data('id');
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'pet_shop_action',
+                pet_action: 'get_product',
+                nonce: pet_shop_ajax.nonce,
+                id: productId
+            },
+            success: function(response) {
+                if (response.success) {
+                    const product = response.data;
+                    $('#product-form')[0].reset();
+                    $('#product-id').val(product.id);
+                    $('#product-name').val(product.name);
+                    $('#product-buying-price').val(product.buying_price);
+                    $('#product-modal').stop(true, true).hide().fadeIn();
+                    $('#product-form').data('mode', 'edit');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error getting product:', error);
+            }
+        });
+    });
+
+    // Close modal
     $('#close-modal').off('click').on('click', function () {
         $('#product-modal').fadeOut();
     });
@@ -60,18 +90,21 @@ jQuery(document).ready(function ($) {
     // Handle product form submission
     $('#product-form').off('submit').on('submit', function(e) {
         e.preventDefault();
+        const mode = $('#product-form').data('mode');
         const productId = $('#product-id').val();
         const productName = $('#product-name').val();
         const buyingPrice = $('#product-buying-price').val();
-        const data = {
+        let data = {
             action: 'pet_shop_action',
-            pet_action: productId ? 'edit_product' : 'add_product',
             nonce: pet_shop_ajax.nonce,
             name: productName,
             buying_price: buyingPrice
         };
-        if (productId) {
+        if (mode === 'edit' && productId) {
+            data.pet_action = 'edit_product';
             data.id = productId;
+        } else {
+            data.pet_action = 'add_product';
         }
         $.ajax({
             url: ajaxurl,
@@ -120,7 +153,6 @@ jQuery(document).ready(function ($) {
                             `;
                         });
                     }
-                    // Always replace, never append
                     $('#product-list').html(html);
                 }
             },
@@ -129,35 +161,6 @@ jQuery(document).ready(function ($) {
             }
         });
     }
-
-    // Edit product
-    $(document).off('click.editProduct').on('click.editProduct', '.edit-product', function() {
-        const productId = $(this).data('id');
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'pet_shop_action',
-                pet_action: 'get_product',
-                nonce: pet_shop_ajax.nonce,
-                id: productId
-            },
-            success: function(response) {
-                if (response.success) {
-                    const product = response.data;
-                    $('#product-modal').stop(true, true).hide();
-                    $('#product-form')[0].reset();
-                    $('#product-id').val(product.id);
-                    $('#product-name').val(product.name);
-                    $('#product-buying-price').val(product.buying_price);
-                    $('#product-modal').fadeIn();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error getting product:', error);
-            }
-        });
-    });
 
     // Delete product
     $(document).off('click.deleteProduct').on('click.deleteProduct', '.delete-product', function() {
